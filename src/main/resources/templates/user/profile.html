@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<title>Profile | Silent Help</title>
+<main class="dashboard-layout">
+    <div class="container"><div class="layout-grid">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        <section class="content-panel">
+            <span class="eyebrow dark">Account</span><h1>Edit profile</h1>
+            <form th:action="@{/profile}" method="post" class="row g-3 mt-2">
+                <div class="col-md-6"><label class="form-label">Username</label><input class="form-control" th:value="${user.username}" disabled></div>
+                <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" th:value="${user.email}" disabled></div>
+                <div class="col-md-6"><label class="form-label">Display name</label><input class="form-control" name="displayName" th:value="${user.displayName}" required></div>
+                <div class="col-md-6"><label class="form-label">Department</label><input class="form-control" name="department" th:value="${user.department}"></div>
+                <div class="col-md-6"><label class="form-label">Year of study</label><input class="form-control" name="yearOfStudy" th:value="${user.yearOfStudy}"></div>
+                <div class="col-12"><button class="btn btn-primary" type="submit">Save Profile</button></div>
+            </form>
+            <div th:if="${!isAdmin}" class="danger-zone mt-4">
+                <div>
+                    <h2>Delete account</h2>
+                    <p class="text-muted mb-0">Your account will be deactivated immediately and your profile will no longer be visible to other users.
+
+Some minimal account records may be retained temporarily for security and moderation purposes.
+
+You can register again in the future using the same college email.</p>
+                </div>
+                <form th:action="@{/account/delete}" method="post" class="form-stack mt-3">
+                    <label>Reason for deleting your account<textarea class="form-control" name="reason" rows="4" minlength="10" required></textarea></label>
+                    <button class="btn btn-outline-danger" type="submit">Delete my account</button>
+                </form>
+            </div>
+        </section>
+    </div></div>
+</main>
+</html>

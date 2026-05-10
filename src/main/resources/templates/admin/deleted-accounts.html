@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<title>Deleted Accounts | Silent Help</title>
+<main class="dashboard-layout">
+    <div class="container"><div class="layout-grid">
+        <div th:replace="~{fragments/admin-sidebar :: admin}"></div>
+        <section class="content-panel">
+            <span class="eyebrow dark">Admin</span>
+            <h1>Deleted accounts</h1>
+            <p class="text-muted">Review deletion reasons, keep an admin record, and help students only when they contact admin after the required waiting period.</p>
+            <div class="table-responsive mt-4">
+                <table class="table align-middle">
+                    <thead><tr><th>Student</th><th>Email</th><th>Deleted at</th><th>Reason</th><th></th></tr></thead>
+                    <tbody>
+                    <tr th:each="user : ${users.content}">
+                        <td><strong th:text="${user.displayName}">Name</strong><br><small th:text="${'@' + user.username}">@username</small></td>
+                        <td th:text="${user.email}">email</td>
+                        <td th:text="${user.deletedAt != null ? #temporals.format(user.deletedAt, 'dd MMM yyyy, HH:mm') : 'Not recorded'}">Date</td>
+                        <td class="reason-cell" th:text="${user.deletionReason} ?: 'No reason provided'">Reason</td>
+                        <td>
+                            <form th:action="@{/admin/deleted-accounts/{id}/reactivate(id=${user.id})}" method="post">
+                                <button class="btn btn-sm btn-outline-primary" type="submit">Restore access</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="empty-state" th:if="${#lists.isEmpty(users.content)}">No deleted student accounts.</div>
+        </section>
+    </div></div>
+</main>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<title>Register | Silent Help</title>
+<main class="auth-page">
+    <div class="auth-card wide">
+        <span class="eyebrow dark">Create student account</span>
+        <h1>Join your anonymous campus help network</h1>
+        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" th:each="err : ${#fields.globalErrors()}" th:text="${err}">Error</div>
+        <form th:action="@{/register}" th:object="${registrationForm}" method="post" class="row g-3">
+            <div class="col-md-6"><label class="form-label">Username</label><input th:field="*{username}" class="form-control" required><div class="text-danger small" th:errors="*{username}"></div></div>
+            <div class="col-md-6"><label class="form-label">College email</label><input th:field="*{email}" class="form-control" type="email" placeholder="name@college.edu" required><div class="text-danger small" th:errors="*{email}"></div><small class="text-muted">Only official college domains are accepted.</small></div>
+            <div class="col-md-6"><label class="form-label">Display name</label><input th:field="*{displayName}" class="form-control" required><div class="text-danger small" th:errors="*{displayName}"></div></div>
+            <div class="col-md-6"><label class="form-label">Password</label><input th:field="*{password}" class="form-control" type="password" required><div class="text-danger small" th:errors="*{password}"></div></div>
+            <div class="col-md-6"><label class="form-label">Department</label><input th:field="*{department}" class="form-control" placeholder="Computer Applications"></div>
+            <div class="col-md-6"><label class="form-label">Year of study</label><input th:field="*{yearOfStudy}" class="form-control" placeholder="Final Year"></div>
+            <div class="col-12"><button class="btn btn-primary w-100" type="submit">Create Account</button></div>
+        </form>
+    </div>
+</main>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<title>Feedback | Silent Help</title>
+<main class="section alt">
+    <div class="container narrow">
+        <section class="content-panel">
+            <span class="eyebrow dark">Feedback</span>
+            <h1>Share feedback</h1>
+            <p class="text-muted">Tell us what feels useful, confusing, or missing so Silent Help can become smoother for students.</p>
+            <form class="form-stack mt-4" th:action="@{/feedback}" method="post">
+                <div class="form-grid">
+                    <label>Name<input class="form-control" name="name" required></label>
+                    <label>Rating<select class="form-select" name="rating"><option value="">Choose rating</option><option>Excellent</option><option>Good</option><option>Needs improvement</option></select></label>
+                </div>
+                <label>Feedback<textarea class="form-control" name="feedback" rows="6" required></textarea></label>
+                <button class="btn btn-primary" type="submit">Submit Feedback</button>
+            </form>
+        </section>
+    </div>
+</main>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<title>Login | Silent Help</title>
+<main class="auth-page">
+    <div class="auth-card">
+        <span class="eyebrow dark">Welcome back</span>
+        <h1>Sign in to Silent Help</h1>
+        <div th:if="${param.account != null && param.account[0] == 'suspended'}" class="alert alert-warning">
+            Your account is suspended by the admin. To request help, <a th:href="@{/contact}">contact the admin</a>.
+        </div>
+        <div th:if="${param.account != null && param.account[0] == 'deleted'}" class="alert alert-warning">
+            This account was deleted. If you want to use Silent Help again, wait 15 days and <a th:href="@{/contact}">contact the admin</a> for permission to register again.
+        </div>
+        <div th:if="${param.account != null && param.account[0] == 'deleted_success'}" class="alert alert-info">
+            Your account deletion request was saved. Your profile details are not removed completely at once; admins keep a deletion record and can process permanent profile-detail removal after the 7-day review period.
+        </div>
+        <div th:if="${param.account != null && param.account[0] == 'error'}" class="alert alert-danger">Invalid username/email or password.</div>
+        <div th:if="${param.logout}" class="alert alert-info">You have been logged out.</div>
+        <form th:action="@{/login}" method="post" class="form-stack">
+            <label>Username or email<input class="form-control" name="username" autocomplete="username" required></label>
+            <label>Password<input class="form-control" name="password" type="password" autocomplete="current-password" required></label>
+            <button class="btn btn-primary w-100" type="submit">Login</button>
+        </form>
+        <div class="d-flex justify-content-between gap-2 mt-3">
+            <a class="small" th:href="@{/forgot-password}">Forgot password?</a>
+            <a class="small" th:href="@{/register}">Create student account</a>
+        </div>
+    </div>
+</main>
+</html>

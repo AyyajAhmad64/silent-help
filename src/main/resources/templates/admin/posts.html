@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<title>Manage Posts | Silent Help</title>
+<main class="dashboard-layout">
+    <div class="container"><div class="layout-grid">
+        <div th:replace="~{fragments/admin-sidebar :: admin}"></div>
+        <section class="content-panel">
+            <span class="eyebrow dark">Admin</span><h1>Manage posts</h1>
+            <form class="filter-bar mt-3" th:action="@{/admin/posts}" method="get"><input class="form-control" name="q" th:value="${query}" placeholder="Search posts"><select class="form-select" name="category"><option value="">All categories</option><option th:each="category : ${categories}" th:value="${category.slug}" th:selected="${category.slug == selectedCategory}" th:text="${category.name}">Category</option></select><button class="btn btn-dark">Filter</button></form>
+            <div class="table-responsive mt-4"><table class="table align-middle"><thead><tr><th>Post</th><th>Category</th><th>Status</th><th>Replies</th><th>Created</th><th>Visibility</th><th></th></tr></thead><tbody>
+            <tr th:each="request : ${requests.content}"><td><a th:href="@{/requests/{id}(id=${request.id})}" th:text="${request.title}">Title</a></td><td th:text="${request.category.name}">Cat</td><td><span class="status-dot" th:classappend="${request.resolved} ? 'done' : ''" th:text="${request.status}">OPEN</span></td><td th:text="${request.responseCount}">0</td><td th:text="${#temporals.format(request.createdAt, 'dd MMM yyyy')}">Date</td><td th:text="${request.hidden} ? 'Hidden' : 'Visible'">Visible</td><td><form th:action="@{/admin/posts/{id}/hide(id=${request.id})}" method="post"><input type="hidden" name="hidden" th:value="${!request.hidden}"><button class="btn btn-sm btn-outline-danger" th:text="${request.hidden} ? 'Unhide' : 'Hide'">Hide</button></form></td></tr>
+            </tbody></table></div>
+        </section>
+    </div></div>
+</main>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<title>Private Chat | Silent Help</title>
+<main class="dashboard-layout">
+    <div class="container"><div class="layout-grid">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        <section class="content-panel">
+            <span class="eyebrow dark">Private chat</span>
+            <h1 th:text="${conversation.helpRequest.title}">Request title</h1>
+            <p class="text-muted">Conversation with <span th:text="${conversation.otherParticipant(user).displayName}">Student</span></p>
+            <div class="chat-thread">
+                <div class="chat-bubble" th:each="message : ${conversation.messages}" th:classappend="${message.sender.id == user.id} ? 'mine' : ''">
+                    <p th:text="${message.message}">Message</p>
+                    <small th:text="${#temporals.format(message.createdAt, 'dd MMM, HH:mm')}">Date</small>
+                </div>
+                <div class="empty-state" th:if="${#lists.isEmpty(conversation.messages)}">No messages yet. Start with a short, respectful note.</div>
+            </div>
+            <form class="form-stack mt-3" th:action="@{/chats/{id}/messages(id=${conversation.id})}" method="post">
+                <textarea class="form-control" name="message" rows="4" maxlength="2000" placeholder="Write a private message..." required></textarea>
+                <button class="btn btn-primary" type="submit">Send Message</button>
+            </form>
+        </section>
+    </div></div>
+</main>
+</html>
