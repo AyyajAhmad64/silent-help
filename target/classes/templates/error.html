@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<title>Something went wrong | Silent Help</title>
+<main class="section alt">
+    <div class="container narrow">
+        <section class="content-panel text-center">
+            <span class="eyebrow dark">Error</span>
+            <h1>Something needs attention</h1>
+            <p class="text-muted">The page could not be completed. Please go back to the help feed and try again.</p>
+            <a class="btn btn-primary" th:href="@{/requests}">Back to requests</a>
+        </section>
+    </div>
+</main>
+</html>

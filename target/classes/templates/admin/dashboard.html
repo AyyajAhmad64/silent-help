@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<title>Admin Dashboard | Silent Help</title>
+<main class="dashboard-layout">
+    <div class="container"><div class="layout-grid">
+        <div th:replace="~{fragments/admin-sidebar :: admin}"></div>
+        <section>
+            <div class="content-panel mb-4"><span class="eyebrow dark">Moderation console</span><h1>Admin dashboard</h1><p class="text-muted">Monitor platform health, content safety, and category operations.</p></div>
+            <div class="stats-grid">
+                <div class="stat-card"><span>Visible Requests</span><strong th:text="${requestCount}">0</strong></div>
+                <div class="stat-card"><span>Open Requests</span><strong th:text="${openCount}">0</strong></div>
+                <div class="stat-card"><span>In Progress</span><strong th:text="${inProgressCount}">0</strong></div>
+                <div class="stat-card"><span>Responses</span><strong th:text="${responseCount}">0</strong></div>
+                <div class="stat-card"><span>Resolved</span><strong th:text="${resolvedCount}">0</strong></div>
+                <div class="stat-card danger"><span>Open Reports</span><strong th:text="${openReports}">0</strong></div>
+                <a class="stat-card danger" th:href="@{/admin/deleted-accounts}"><span>Deleted Accounts</span><strong th:text="${deletedAccountCount}">0</strong></a>
+            </div>
+        </section>
+    </div></div>
+</main>
+</html>
