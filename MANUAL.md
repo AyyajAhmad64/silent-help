@@ -14,9 +14,9 @@ mvn spring-boot:run
 
 4. Open `http://localhost:8080`.
 
-Seed data is enabled by default. Demo accounts:
+Seed data is enabled by default. Configure the admin password with `DEFAULT_ADMIN_PASSWORD` before deploying. Demo accounts:
 
-- Admin: `admin` / `admin@1234`
+- Admin: `admin` / value of `DEFAULT_ADMIN_PASSWORD`
 - Student: `student` / `student@123`
 - Mentor: `mentor` / `mentor@123`
 

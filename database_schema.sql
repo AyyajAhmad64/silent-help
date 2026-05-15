@@ -14,6 +14,8 @@ CREATE TABLE users (
     display_name VARCHAR(120) NOT NULL,
     department VARCHAR(120),
     year_of_study VARCHAR(40),
+    enrollment_number VARCHAR(60),
+    verified_student BOOLEAN NOT NULL DEFAULT FALSE,
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deletion_reason VARCHAR(500),

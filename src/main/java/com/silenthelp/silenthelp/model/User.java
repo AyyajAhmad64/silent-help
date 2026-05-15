@@ -33,6 +33,43 @@ public class User {
     @Column(length = 40)
     private String yearOfStudy;
 
+    @Column(length = 60)
+    private String enrollmentNumber;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean verifiedStudent = false;
+
+    @Column(name = "is_verified", nullable = false, columnDefinition = "boolean default false")
+    private boolean verified = false;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean verifiedByAdmin = false;
+
+    private LocalDateTime verifiedAt;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean emailVerified = false;
+
+    private LocalDateTime emailVerifiedAt;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean termsAccepted = false;
+
+    private LocalDateTime termsAcceptedAt;
+
+    @Column(length = 40)
+    private String policyVersion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 40, columnDefinition = "varchar(40) default 'ACTIVE'")
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean suspicious = false;
+
+    @Column(length = 500)
+    private String reviewNote;
+
     @Column(nullable = false)
     private boolean enabled = true;
 
@@ -107,6 +144,128 @@ public class User {
         this.yearOfStudy = yearOfStudy;
     }
 
+    public String getEnrollmentNumber() {
+        return enrollmentNumber;
+    }
+
+    public void setEnrollmentNumber(String enrollmentNumber) {
+        this.enrollmentNumber = enrollmentNumber;
+    }
+
+    public boolean isVerifiedStudent() {
+        return verifiedStudent || verified;
+    }
+
+    public void setVerifiedStudent(boolean verifiedStudent) {
+        this.verifiedStudent = verifiedStudent;
+        this.verified = verifiedStudent;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+        this.verifiedStudent = verified;
+    }
+
+    public boolean isVerifiedByAdmin() {
+        return verifiedByAdmin;
+    }
+
+    public void setVerifiedByAdmin(boolean verifiedByAdmin) {
+        this.verifiedByAdmin = verifiedByAdmin;
+    }
+
+    public LocalDateTime getVerifiedAt() {
+        return verifiedAt;
+    }
+
+    public void setVerifiedAt(LocalDateTime verifiedAt) {
+        this.verifiedAt = verifiedAt;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public LocalDateTime getEmailVerifiedAt() {
+        return emailVerifiedAt;
+    }
+
+    public void setEmailVerifiedAt(LocalDateTime emailVerifiedAt) {
+        this.emailVerifiedAt = emailVerifiedAt;
+    }
+
+    public boolean isTermsAccepted() {
+        return termsAccepted;
+    }
+
+    public void setTermsAccepted(boolean termsAccepted) {
+        this.termsAccepted = termsAccepted;
+    }
+
+    public LocalDateTime getTermsAcceptedAt() {
+        return termsAcceptedAt;
+    }
+
+    public void setTermsAcceptedAt(LocalDateTime termsAcceptedAt) {
+        this.termsAcceptedAt = termsAcceptedAt;
+    }
+
+    public String getPolicyVersion() {
+        return policyVersion;
+    }
+
+    public void setPolicyVersion(String policyVersion) {
+        this.policyVersion = policyVersion;
+    }
+
+    public AccountStatus getAccountStatus() {
+        if (accountStatus == null) {
+            if (deleted && !enabled) {
+                return AccountStatus.DELETED;
+            }
+            if (deleted) {
+                return AccountStatus.DEACTIVATED;
+            }
+            if (!enabled) {
+                return AccountStatus.BANNED;
+            }
+            return AccountStatus.ACTIVE;
+        }
+        return accountStatus;
+    }
+
+    public void setAccountStatus(AccountStatus accountStatus) {
+        this.accountStatus = accountStatus;
+        this.enabled = accountStatus == AccountStatus.ACTIVE;
+        this.deleted = accountStatus == AccountStatus.DEACTIVATED
+                || accountStatus == AccountStatus.PENDING_REACTIVATION
+                || accountStatus == AccountStatus.DELETED;
+    }
+
+    public boolean isSuspicious() {
+        return suspicious;
+    }
+
+    public void setSuspicious(boolean suspicious) {
+        this.suspicious = suspicious;
+    }
+
+    public String getReviewNote() {
+        return reviewNote;
+    }
+
+    public void setReviewNote(String reviewNote) {
+        this.reviewNote = reviewNote;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -157,5 +316,18 @@ public class User {
 
     public boolean hasRole(RoleName roleName) {
         return roles.stream().anyMatch(role -> role.getName() == roleName);
+    }
+
+    public String getTrustLevel() {
+        if (hasRole(RoleName.ADMIN)) {
+            return "Admin";
+        }
+        if (verifiedByAdmin || verified) {
+            return "Internally Verified";
+        }
+        if (emailVerified && termsAccepted) {
+            return "Trusted User";
+        }
+        return "New User";
     }
 }

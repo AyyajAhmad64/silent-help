@@ -13,7 +13,7 @@
                 </div>
                 <small th:text="${#temporals.format(conversation.updatedAt, 'dd MMM yyyy, HH:mm')}">Date</small>
             </a>
-            <div class="empty-state" th:if="${#lists.isEmpty(conversations)}">No private chats yet. Open a request response and start a private chat with the requester or responder.</div>
+            <div class="empty-state" th:if="${#lists.isEmpty(conversations)}">No conversations started yet.</div>
         </section>
     </div></div>
 </main>

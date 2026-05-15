@@ -1,6 +1,7 @@
 package com.silenthelp.silenthelp.service;
 
 import com.silenthelp.silenthelp.model.Notification;
+import com.silenthelp.silenthelp.model.AccountStatus;
 import com.silenthelp.silenthelp.model.RoleName;
 import com.silenthelp.silenthelp.model.User;
 import com.silenthelp.silenthelp.repository.NotificationRepository;
@@ -34,7 +35,7 @@ public class NotificationService {
     public void notifyAdmins(String title, String message, String link) {
         userRepository.findDistinctByRolesName(RoleName.ADMIN).stream()
                 .filter(User::isEnabled)
-                .filter(user -> !user.isDeleted())
+                .filter(user -> user.getAccountStatus() == AccountStatus.ACTIVE)
                 .forEach(admin -> notify(admin, title, message, link));
     }
 

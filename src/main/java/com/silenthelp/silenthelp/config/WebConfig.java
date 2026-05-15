@@ -1,24 +1,29 @@
 package com.silenthelp.silenthelp.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.nio.file.Path;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    private final String uploadDir;
+    private final PolicyAcceptanceInterceptor policyAcceptanceInterceptor;
 
-    public WebConfig(@Value("${app.upload.dir:uploads}") String uploadDir) {
-        this.uploadDir = uploadDir;
+    public WebConfig(PolicyAcceptanceInterceptor policyAcceptanceInterceptor) {
+        this.policyAcceptanceInterceptor = policyAcceptanceInterceptor;
     }
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        Path uploadPath = Path.of(uploadDir).toAbsolutePath().normalize();
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(uploadPath.toUri().toString());
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(policyAcceptanceInterceptor)
+                .excludePathPatterns(
+                        "/policies/accept",
+                        "/logout",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/uploads/**",
+                        "/webjars/**",
+                        "/error"
+                );
     }
 }

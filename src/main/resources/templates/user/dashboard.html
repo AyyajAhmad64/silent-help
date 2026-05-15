@@ -15,7 +15,7 @@
                     <a th:href="@{/requests/new}" class="action-card primary-action"><i class="bi bi-plus-circle"></i><strong>Ask for help</strong><span>Create a request with priority, tags, deadline, and attachment links.</span></a>
                     <a th:href="@{/requests(status='OPEN')}" class="action-card"><i class="bi bi-lightning-charge"></i><strong>Help someone now</strong><span>Browse open requests and earn contribution points.</span></a>
                     <a th:href="@{/notifications}" class="action-card"><i class="bi bi-bell"></i><strong>Notification center</strong><span>Check replies, helpful votes, report updates, and admin messages.</span></a>
-                    <a th:href="@{/profile}" class="action-card"><i class="bi bi-person-gear"></i><strong>Account settings</strong><span>Update your profile or delete your account.</span></a>
+                    <a th:href="@{/profile}" class="action-card"><i class="bi bi-person-gear"></i><strong>Account settings</strong><span>Update your profile, deactivate access, or remove personal information.</span></a>
                 </div>
                 <div class="stats-grid mb-4">
                     <div class="stat-card"><span>My Requests</span><strong th:text="${#lists.size(requests)}">0</strong></div>
@@ -65,7 +65,7 @@
                                 <span th:text="${request.title}">Title</span><small th:text="${request.category.name}">Category</small>
                                 <small th:text="${request.urgency}">NORMAL</small>
                             </a>
-                            <div class="empty-state" th:if="${#lists.isEmpty(requests)}">You have not created a request yet.</div>
+                            <div class="empty-state" th:if="${#lists.isEmpty(requests)}">Your anonymous requests will appear here.</div>
                         </div>
                     </div>
                     <div class="col-lg-6">
@@ -83,7 +83,7 @@
                             <a class="list-row" th:each="response : ${responses}" th:href="@{/requests/{id}(id=${response.helpRequest.id})}">
                                 <span th:text="${#strings.abbreviate(response.message, 70)}">Response</span><small th:text="${response.helpRequest.title}">Request</small>
                             </a>
-                            <div class="empty-state" th:if="${#lists.isEmpty(responses)}">No responses posted yet.</div>
+                            <div class="empty-state" th:if="${#lists.isEmpty(responses)}">Helpful responses you share will appear here.</div>
                         </div>
                     </div>
                 </div>

@@ -15,7 +15,7 @@
             <div class="card-meta mb-3"><span th:if="${request.anonymous or request.student.deleted}"><i class="bi bi-incognito"></i> Asked by <span th:text="'Anonymous Student #' + ${request.id}">Anonymous Student</span></span><span th:unless="${request.anonymous or request.student.deleted}"><i class="bi bi-person-circle"></i> Asked by <span th:text="${request.student.displayName}">Student</span></span><span th:text="${#temporals.format(request.createdAt, 'dd MMM yyyy, HH:mm')}">Date</span></div>
             <div class="detail-metrics">
                 <span><i class="bi bi-eye"></i> <strong th:text="${request.viewCount}">0</strong> views</span>
-                <span><i class="bi bi-chat-left-text"></i> <strong th:text="${request.responseCount}">0</strong> replies</span>
+                <span><i class="bi bi-chat-left-text"></i> <strong id="responseCount" th:text="${request.responseCount}">0</strong> replies</span>
                 <span th:if="${request.expectedBy}"><i class="bi bi-calendar-event"></i> Needed by <strong th:text="${#temporals.format(request.expectedBy, 'dd MMM yyyy')}">Date</strong></span>
                 <span th:if="${request.preferredContact}"><i class="bi bi-chat-dots"></i> <strong th:text="${request.preferredContact}">Contact</strong></span>
                 <span th:if="${request.campusGroup}"><i class="bi bi-building"></i> <strong th:text="${request.campusGroup}">Group</strong></span>
@@ -26,7 +26,23 @@
                 <i class="bi bi-paperclip"></i> Open attached resource
             </a>
             <div class="request-image" th:if="${request.attachmentUrl != null && #strings.startsWith(request.attachmentUrl, '/uploads/')}">
-                <img th:src="@{${request.attachmentUrl}}" alt="Attached request image">
+                <button class="request-image-button" type="button" data-bs-toggle="modal" data-bs-target="#requestImagePreview" aria-label="Open attached image preview">
+                    <img th:src="@{${request.attachmentUrl}}" alt="Attached request image">
+                    <span><i class="bi bi-arrows-fullscreen"></i> Click to view larger</span>
+                </button>
+            </div>
+            <div class="modal fade image-preview-modal" id="requestImagePreview" tabindex="-1" aria-labelledby="requestImagePreviewTitle" th:if="${request.attachmentUrl != null && #strings.startsWith(request.attachmentUrl, '/uploads/')}">
+                <div class="modal-dialog modal-dialog-centered modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="requestImagePreviewTitle">Attached image</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <img th:src="@{${request.attachmentUrl}}" alt="Attached request image preview">
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <form th:action="@{/requests/{id}/save(id=${request.id})}" method="post"><button class="btn btn-sm" th:classappend="${saved} ? 'btn-primary' : 'btn-outline-primary'" type="submit"><i class="bi bi-bookmark me-1"></i><span th:text="${saved} ? 'Saved' : 'Save'">Save</span></button></form>
@@ -43,6 +59,7 @@
 
         <section class="mt-4">
             <h2>Responses</h2>
+            <div id="responsesThread">
             <div class="response-card" th:each="response : ${request.responses}" th:if="${!response.hidden}">
                 <div class="card-meta"><span th:if="${response.anonymous or response.student.deleted}"><i class="bi bi-incognito"></i> <span th:text="'Anonymous Helper #' + ${response.id}">Anonymous Helper</span></span><span th:unless="${response.anonymous or response.student.deleted}"><i class="bi bi-person-circle"></i> <span th:text="${response.student.displayName}">Helper</span></span><span th:text="${#temporals.format(response.createdAt, 'dd MMM, HH:mm')}">Date</span></div>
                 <p th:text="${response.message}">Response</p>
@@ -62,15 +79,18 @@
                     </form></div>
                 </div>
             </div>
-            <div class="empty-state" th:if="${#lists.isEmpty(request.responses)}">No responses yet. Be the first to help.</div>
+            </div>
+            <div class="empty-state responses-empty" th:if="${#lists.isEmpty(request.responses)}">No responses yet. Be the first to help.</div>
         </section>
 
         <section class="detail-panel mt-4">
             <h2>Write a helpful response</h2>
-            <form th:action="@{/requests/{id}/responses(id=${request.id})}" th:object="${responseForm}" method="post" class="form-stack">
+            <form th:action="@{/requests/{id}/responses(id=${request.id})}" th:object="${responseForm}" method="post" class="form-stack response-form" data-loading-text="Posting...">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <textarea th:field="*{message}" class="form-control" rows="5" placeholder="Share notes, guidance, steps, contacts, or practical advice." required></textarea>
+                <small class="text-danger" th:if="${#fields.hasErrors('message')}" th:errors="*{message}">Message error</small>
                 <label class="switch-line"><input th:field="*{anonymous}" class="form-check-input" type="checkbox"> Respond anonymously</label>
-                <button class="btn btn-primary" type="submit">Post Response</button>
+                <button class="btn btn-primary response-submit" type="submit"><span class="response-submit-status"><i class="bi bi-send"></i>Post Response</span></button>
             </form>
         </section>
 

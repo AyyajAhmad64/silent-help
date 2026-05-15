@@ -67,6 +67,13 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
+    @PostMapping("/admin/users/{id}/verify")
+    public String internallyVerify(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        userService.internallyVerify(id);
+        redirectAttributes.addFlashAttribute("success", "User internally verified.");
+        return "redirect:/admin/users";
+    }
+
     @GetMapping("/admin/deleted-accounts")
     public String deletedAccounts(@RequestParam(defaultValue = "0") int page, Model model) {
         model.addAttribute("users", userService.deletedUsers(PageRequest.of(Math.max(page, 0), 12)));
@@ -75,11 +82,21 @@ public class AdminController {
 
     @PostMapping("/admin/deleted-accounts/{id}/reactivate")
     public String reactivateDeletedAccount(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var user = userService.reactivateDeletedAccount(id);
+        var user = userService.approveReactivation(id);
         notificationService.notify(user, "Account access restored",
-                "Admin restored access to your Silent Help account after reviewing your deletion request.",
+                "Admin restored access to your Silent Help account.",
                 "/dashboard");
         redirectAttributes.addFlashAttribute("success", "Account access restored for this student.");
+        return "redirect:/admin/deleted-accounts";
+    }
+
+    @PostMapping("/admin/deleted-accounts/{id}/reject")
+    public String rejectReactivation(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        var user = userService.rejectReactivation(id);
+        notificationService.notify(user, "Reactivation request reviewed",
+                "Your account remains deactivated after admin review.",
+                "/contact");
+        redirectAttributes.addFlashAttribute("success", "Reactivation request rejected.");
         return "redirect:/admin/deleted-accounts";
     }
 

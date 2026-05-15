@@ -30,7 +30,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, UserService userService) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/about", "/contact", "/feedback", "/login", "/register", "/forgot-password", "/reset-password", "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
+                        .requestMatchers("/", "/about", "/contact", "/feedback", "/community-guidelines", "/terms", "/privacy", "/report-issue", "/login", "/register", "/verify-email", "/verify-email/request", "/reactivation-request", "/forgot-password", "/reset-password", "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(login -> login
@@ -40,6 +40,10 @@ public class SecurityConfig {
                             response.sendRedirect("/login?account=" + account);
                         })
                         .successHandler((request, response, authentication) -> {
+                            if (userService.needsPolicyAcceptance(authentication.getName())) {
+                                response.sendRedirect("/policies/accept");
+                                return;
+                            }
                             boolean admin = authentication.getAuthorities().stream()
                                     .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
                             response.sendRedirect(admin ? "/admin" : "/dashboard");

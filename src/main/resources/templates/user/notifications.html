@@ -10,7 +10,7 @@
                 <div><strong th:text="${notification.title}">Title</strong><p th:text="${notification.message}">Message</p><small th:text="${#temporals.format(notification.createdAt, 'dd MMM yyyy, HH:mm')}">Date</small></div>
                 <i class="bi bi-chevron-right"></i>
             </a>
-            <div class="empty-state" th:if="${#lists.isEmpty(notifications)}">No notifications yet.</div>
+            <div class="empty-state" th:if="${#lists.isEmpty(notifications)}">Important support updates will appear here.</div>
         </section>
     </div></div>
 </main>

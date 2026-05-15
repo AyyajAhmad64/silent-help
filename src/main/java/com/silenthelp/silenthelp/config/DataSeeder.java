@@ -3,6 +3,7 @@ package com.silenthelp.silenthelp.config;
 import com.silenthelp.silenthelp.dto.HelpRequestForm;
 import com.silenthelp.silenthelp.dto.ResponseForm;
 import com.silenthelp.silenthelp.model.Category;
+import com.silenthelp.silenthelp.model.AccountStatus;
 import com.silenthelp.silenthelp.model.Role;
 import com.silenthelp.silenthelp.model.RoleName;
 import com.silenthelp.silenthelp.model.User;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Configuration
@@ -32,7 +34,8 @@ public class DataSeeder {
                                ResponseService responseService,
                                @Value("${app.seed.enabled:true}") boolean seedEnabled,
                                @Value("${app.default-admin.username:admin}") String adminUsername,
-                               @Value("${app.default-admin.password:admin@1234}") String adminPassword) {
+                               @Value("${app.default-admin.password:change-me}") String adminPassword,
+                               @Value("${app.policy.version:2026-05}") String policyVersion) {
         return args -> {
             if (!seedEnabled) {
                 return;
@@ -40,9 +43,9 @@ public class DataSeeder {
             seedRoles(roleRepository);
             seedCategories(categoryRepository);
             User admin = seedUser(userRepository, roleRepository, passwordEncoder, adminUsername,
-                    "realadmin@gmail.com", adminPassword, "System Admin", RoleName.ADMIN);
+                    "realadmin@gmail.com", adminPassword, "System Admin", RoleName.ADMIN, policyVersion);
             User student = seedUser(userRepository, roleRepository, passwordEncoder, "student",
-                    "student@college.edu", "Student@2026", "Demo Student", RoleName.STUDENT);
+                    "student@college.edu", "Student@2026", "Demo Student", RoleName.STUDENT, policyVersion);
             if (helpRequestRepository.count() == 0) {
                 createSampleRequests(categoryRepository, helpRequestService, responseService, student, admin);
             }
@@ -72,12 +75,30 @@ public class DataSeeder {
     }
 
     private User seedUser(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
-                          String username, String email, String password, String displayName, RoleName roleName) {
+                          String username, String email, String password, String displayName, RoleName roleName,
+                          String policyVersion) {
         Role role = roleRepository.findByName(roleName).orElseThrow();
         return userRepository.findByUsername(username).map(user -> {
             user.setEmail(email);
             user.setPassword(passwordEncoder.encode(password));
             user.setDisplayName(displayName);
+            user.setEnabled(true);
+            user.setAccountStatus(AccountStatus.ACTIVE);
+            user.setEnrollmentNumber(roleName == RoleName.STUDENT ? "DEMO-STUDENT-001" : "DEMO-ADMIN-001");
+            user.setVerifiedStudent(true);
+            user.setVerifiedByAdmin(true);
+            user.setVerifiedAt(LocalDateTime.now());
+            user.setEmailVerified(true);
+            user.setEmailVerifiedAt(LocalDateTime.now());
+            user.setTermsAccepted(true);
+            user.setTermsAcceptedAt(LocalDateTime.now());
+            user.setPolicyVersion(policyVersion);
+            if (user.isDeleted()) {
+                user.setDeleted(false);
+                user.setDeletionReason(null);
+                user.setDeletedAt(null);
+                user.setReactivatedAt(LocalDateTime.now());
+            }
             user.getRoles().add(role);
             return userRepository.save(user);
         }).orElseGet(() -> {
@@ -88,6 +109,16 @@ public class DataSeeder {
             user.setDisplayName(displayName);
             user.setDepartment("Computer Applications");
             user.setYearOfStudy("Final Year");
+            user.setEnrollmentNumber(roleName == RoleName.STUDENT ? "DEMO-STUDENT-001" : "DEMO-ADMIN-001");
+            user.setVerifiedStudent(true);
+            user.setVerifiedByAdmin(true);
+            user.setVerifiedAt(LocalDateTime.now());
+            user.setEmailVerified(true);
+            user.setEmailVerifiedAt(LocalDateTime.now());
+            user.setTermsAccepted(true);
+            user.setTermsAcceptedAt(LocalDateTime.now());
+            user.setPolicyVersion(policyVersion);
+            user.setAccountStatus(AccountStatus.ACTIVE);
             user.getRoles().add(role);
             return userRepository.save(user);
         });

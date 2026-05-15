@@ -6,6 +6,7 @@ import com.silenthelp.silenthelp.dto.ResponseForm;
 import com.silenthelp.silenthelp.model.HelpRequest;
 import com.silenthelp.silenthelp.model.ReportTargetType;
 import com.silenthelp.silenthelp.model.RequestStatus;
+import com.silenthelp.silenthelp.model.Response;
 import com.silenthelp.silenthelp.model.User;
 import com.silenthelp.silenthelp.service.CategoryService;
 import com.silenthelp.silenthelp.service.FileStorageService;
@@ -16,6 +17,7 @@ import com.silenthelp.silenthelp.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,8 +30,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+
 @Controller
 public class HelpRequestController {
+    private static final DateTimeFormatter RESPONSE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM, HH:mm");
+
     private final HelpRequestService helpRequestService;
     private final ResponseService responseService;
     private final ReportService reportService;
@@ -103,14 +110,10 @@ public class HelpRequestController {
     @GetMapping("/requests/{id}")
     public String details(@PathVariable Long id, Authentication authentication, Model model) {
         User viewer = authentication == null ? null : currentUser(authentication);
-        HelpRequest request = helpRequestService.visibleRequest(id, viewer);
-        model.addAttribute("request", request);
-        model.addAttribute("viewer", viewer);
-        model.addAttribute("saved", viewer != null && helpRequestService.isSaved(id, viewer));
-        model.addAttribute("owner", viewer != null && request.getStudent().getId().equals(viewer.getId()));
-        model.addAttribute("responseForm", new ResponseForm());
-        model.addAttribute("reportForm", new ReportForm());
-        model.addAttribute("statuses", RequestStatus.values());
+        populateDetailsModel(id, viewer, model);
+        if (!model.containsAttribute("responseForm")) {
+            model.addAttribute("responseForm", new ResponseForm());
+        }
         return "requests/details";
     }
 
@@ -121,16 +124,58 @@ public class HelpRequestController {
                           Authentication authentication,
                           RedirectAttributes redirectAttributes,
             Model model) {
+        User viewer = currentUser(authentication);
         if (bindingResult.hasErrors()) {
-            model.addAttribute("request", helpRequestService.visibleRequest(id, currentUser(authentication)));
-            model.addAttribute("reportForm", new ReportForm());
+            populateDetailsModel(id, viewer, model);
+            model.addAttribute("error", "Please write a response between 5 and 3000 characters.");
             return "requests/details";
         }
-        responseService.respond(id, responseForm, currentUser(authentication));
-        redirectAttributes.addFlashAttribute("success", responseForm.isAnonymous()
-                ? "Response posted anonymously."
-                : "Response posted with your display name.");
+        try {
+            responseService.respond(id, responseForm, viewer);
+            redirectAttributes.addFlashAttribute("success", responseForm.isAnonymous()
+                    ? "Response posted anonymously."
+                    : "Response posted with your display name.");
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
         return "redirect:/requests/" + id;
+    }
+
+    @PostMapping(value = "/requests/{id}/responses", headers = "X-Requested-With=XMLHttpRequest")
+    public ResponseEntity<Map<String, Object>> respondAjax(@PathVariable Long id,
+                                                           @Valid @ModelAttribute ResponseForm responseForm,
+                                                           BindingResult bindingResult,
+                                                           Authentication authentication) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "ok", false,
+                    "message", "Please write a response between 5 and 3000 characters."
+            ));
+        }
+        try {
+            User viewer = currentUser(authentication);
+            Response response = responseService.respond(id, responseForm, viewer);
+            return ResponseEntity.ok(Map.of(
+                    "ok", true,
+                    "message", responseForm.isAnonymous()
+                            ? "Response posted anonymously."
+                            : "Response posted with your display name.",
+                    "response", Map.of(
+                            "id", response.getId(),
+                            "author", response.isAnonymous() || response.getStudent().isDeleted()
+                                    ? "Anonymous Helper #" + response.getId()
+                                    : response.getStudent().getDisplayName(),
+                            "body", response.getMessage(),
+                            "createdAt", response.getCreatedAt().format(RESPONSE_TIME_FORMAT),
+                            "helpfulCount", response.getHelpfulCount()
+                    )
+            ));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "ok", false,
+                    "message", ex.getMessage()
+            ));
+        }
     }
 
     @PostMapping("/requests/{id}/resolve")
@@ -204,5 +249,15 @@ public class HelpRequestController {
 
     private User currentUser(Authentication authentication) {
         return userService.requireByUsername(authentication.getName());
+    }
+
+    private void populateDetailsModel(Long id, User viewer, Model model) {
+        HelpRequest request = helpRequestService.visibleRequest(id, viewer);
+        model.addAttribute("request", request);
+        model.addAttribute("viewer", viewer);
+        model.addAttribute("saved", viewer != null && helpRequestService.isSaved(id, viewer));
+        model.addAttribute("owner", viewer != null && request.getStudent().getId().equals(viewer.getId()));
+        model.addAttribute("reportForm", new ReportForm());
+        model.addAttribute("statuses", RequestStatus.values());
     }
 }

@@ -13,7 +13,7 @@
                     <p th:text="${message.message}">Message</p>
                     <small th:text="${#temporals.format(message.createdAt, 'dd MMM, HH:mm')}">Date</small>
                 </div>
-                <div class="empty-state" th:if="${#lists.isEmpty(conversation.messages)}">No messages yet. Start with a short, respectful note.</div>
+                <div class="empty-state" th:if="${#lists.isEmpty(conversation.messages)}">No conversations started yet.</div>
             </div>
             <form class="form-stack mt-3" th:action="@{/chats/{id}/messages(id=${conversation.id})}" method="post">
                 <textarea class="form-control" name="message" rows="4" maxlength="2000" placeholder="Write a private message..." required></textarea>

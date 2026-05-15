@@ -15,9 +15,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class AuthController {
     private final UserService userService;
+    private final com.silenthelp.silenthelp.service.NotificationService notificationService;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, com.silenthelp.silenthelp.service.NotificationService notificationService) {
         this.userService = userService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/forgot-password")
@@ -73,6 +75,59 @@ public class AuthController {
         return "auth/login";
     }
 
+    @GetMapping("/verify-email")
+    public String verifyEmail(@RequestParam String token, RedirectAttributes redirectAttributes) {
+        try {
+            userService.verifyEmail(token);
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/login";
+        }
+        redirectAttributes.addFlashAttribute("success", "Email verified. Please sign in and accept the platform policies to continue.");
+        return "redirect:/login";
+    }
+
+    @GetMapping("/verify-email/request")
+    public String requestEmailVerification() {
+        return "auth/verify-email-request";
+    }
+
+    @PostMapping("/verify-email/request")
+    public String requestEmailVerification(@RequestParam String account,
+                                           Model model) {
+        try {
+            String token = userService.createEmailVerificationTokenForAccount(account);
+            model.addAttribute("verificationLink", "/verify-email?token=" + token);
+            model.addAttribute("successMessage", "Verification link generated for this local setup.");
+        } catch (IllegalArgumentException ex) {
+            model.addAttribute("error", ex.getMessage());
+        }
+        return "auth/verify-email-request";
+    }
+
+    @GetMapping("/reactivation-request")
+    public String reactivationRequest() {
+        return "auth/reactivation-request";
+    }
+
+    @PostMapping("/reactivation-request")
+    public String reactivationRequest(@RequestParam String account,
+                                      @RequestParam String reason,
+                                      RedirectAttributes redirectAttributes,
+                                      Model model) {
+        try {
+            var user = userService.requestReactivation(account, reason);
+            notificationService.notifyAdmins("Reactivation request",
+                    user.getDisplayName() + " requested account reactivation.",
+                    "/admin/deleted-accounts");
+        } catch (IllegalArgumentException ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "auth/reactivation-request";
+        }
+        redirectAttributes.addFlashAttribute("success", "Reactivation request sent. An admin will review it before access is restored.");
+        return "redirect:/login";
+    }
+
     @GetMapping("/register")
     public String register(Model model) {
         model.addAttribute("registrationForm", new RegistrationForm());
@@ -87,12 +142,13 @@ public class AuthController {
             return "auth/register";
         }
         try {
-            userService.registerStudent(registrationForm);
+            String token = userService.registerStudent(registrationForm);
+            redirectAttributes.addFlashAttribute("success", "Account created. Verify your email before signing in.");
+            redirectAttributes.addFlashAttribute("verificationLink", "/verify-email?token=" + token);
         } catch (IllegalArgumentException ex) {
             bindingResult.reject("registration.failed", ex.getMessage());
             return "auth/register";
         }
-        redirectAttributes.addFlashAttribute("success", "Account created. Please sign in to continue.");
         return "redirect:/login";
     }
 }

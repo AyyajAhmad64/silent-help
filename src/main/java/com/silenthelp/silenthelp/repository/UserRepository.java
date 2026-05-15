@@ -1,6 +1,7 @@
 package com.silenthelp.silenthelp.repository;
 
 import com.silenthelp.silenthelp.model.User;
+import com.silenthelp.silenthelp.model.AccountStatus;
 import com.silenthelp.silenthelp.model.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,4 +53,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findDistinctByRolesNameAndDeletedTrue(com.silenthelp.silenthelp.model.RoleName roleName, Pageable pageable);
 
     long countDistinctByRolesNameAndDeletedTrue(com.silenthelp.silenthelp.model.RoleName roleName);
+
+    Page<User> findDistinctByRolesNameAndAccountStatusIn(com.silenthelp.silenthelp.model.RoleName roleName,
+                                                         List<AccountStatus> statuses,
+                                                         Pageable pageable);
+
+    long countDistinctByRolesNameAndAccountStatusIn(com.silenthelp.silenthelp.model.RoleName roleName,
+                                                    List<AccountStatus> statuses);
 }

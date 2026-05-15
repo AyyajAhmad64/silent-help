@@ -5,11 +5,46 @@
     <div class="container"><div class="layout-grid">
         <div th:replace="~{fragments/admin-sidebar :: admin}"></div>
         <section class="content-panel">
-            <span class="eyebrow dark">Admin</span><h1>Manage users</h1>
-            <form class="filter-bar mt-3" th:action="@{/admin/users}" method="get"><input class="form-control" name="q" th:value="${query}" placeholder="Search users"><button class="btn btn-dark">Search</button></form>
-            <div class="table-responsive mt-4"><table class="table align-middle"><thead><tr><th>Registered Student</th><th>Email</th><th>Department</th><th>Year</th><th>Joined</th><th>Status</th><th></th></tr></thead><tbody>
-            <tr th:each="user : ${users.content}"><td><strong th:text="${user.displayName}">Name</strong><br><small th:text="${user.username}">username</small></td><td><span th:text="${user.email}">Email</span><br><span class="status-dot done">College verified</span></td><td th:text="${user.department} ?: 'Not provided'">Dept</td><td th:text="${user.yearOfStudy} ?: 'Not provided'">Year</td><td th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy')}">Date</td><td><span th:class="${user.deleted} ? 'status-dot danger-soft' : (${user.enabled} ? 'status-dot done' : 'status-dot urgency hot')" th:text="${user.deleted} ? 'Deleted' : (${user.enabled} ? 'Active' : 'Suspended')">Active</span></td><td><form th:if="${!user.deleted}" th:action="@{/admin/users/{id}/enabled(id=${user.id})}" method="post"><input type="hidden" name="enabled" th:value="${!user.enabled}"><button class="btn btn-sm btn-outline-dark" th:text="${user.enabled} ? 'Suspend' : 'Activate'">Toggle</button></form><a th:if="${user.deleted}" class="btn btn-sm btn-outline-dark" th:href="@{/admin/deleted-accounts}">Review</a></td></tr>
-            </tbody></table></div>
+            <span class="eyebrow dark">Admin</span>
+            <h1>Manage users</h1>
+            <form class="filter-bar mt-3" th:action="@{/admin/users}" method="get">
+                <input class="form-control" name="q" th:value="${query}" placeholder="Search users">
+                <button class="btn btn-dark">Search</button>
+            </form>
+            <div class="table-responsive mt-4">
+                <table class="table align-middle">
+                    <thead><tr><th>Registered Student</th><th>Trust</th><th>Department</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>
+                    <tr th:each="user : ${users.content}">
+                        <td>
+                            <strong th:text="${user.displayName}">Name</strong><br>
+                            <small th:text="${'@' + user.username}">@username</small><br>
+                            <small th:text="${user.email}">Email</small>
+                        </td>
+                        <td>
+                            <span class="trust-badge verified" th:if="${user.verifiedByAdmin}"><i class="bi bi-patch-check-fill"></i> Internally Verified</span>
+                            <span class="trust-badge trusted" th:unless="${user.verifiedByAdmin}" th:text="${user.trustLevel}">Trusted User</span>
+                            <span class="status-dot urgency mt-2" th:if="${user.suspicious}">Review flagged</span>
+                        </td>
+                        <td><span th:text="${user.department} ?: 'Not provided'">Dept</span><br><small th:text="${user.yearOfStudy} ?: 'Not provided'">Year</small></td>
+                        <td th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy')}">Date</td>
+                        <td><span th:class="${user.accountStatus.name() == 'ACTIVE'} ? 'status-dot done' : (${user.accountStatus.name() == 'BANNED'} ? 'status-dot urgency hot' : 'status-dot danger-soft')" th:text="${user.accountStatus}">Active</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <form th:if="${user.accountStatus.name() != 'DELETED'}" th:action="@{/admin/users/{id}/enabled(id=${user.id})}" method="post">
+                                    <input type="hidden" name="enabled" th:value="${user.accountStatus.name() != 'ACTIVE'}">
+                                    <button class="btn btn-sm btn-outline-dark" th:text="${user.accountStatus.name() == 'ACTIVE'} ? 'Ban' : 'Activate'">Toggle</button>
+                                </form>
+                                <form th:if="${!user.verifiedByAdmin}" th:action="@{/admin/users/{id}/verify(id=${user.id})}" method="post">
+                                    <button class="btn btn-sm btn-outline-primary" type="submit">Internally Verify User</button>
+                                </form>
+                                <a th:if="${user.accountStatus.name() == 'DEACTIVATED' || user.accountStatus.name() == 'PENDING_REACTIVATION'}" class="btn btn-sm btn-outline-secondary" th:href="@{/admin/deleted-accounts}">Review</a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
     </div></div>
 </main>

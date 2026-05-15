@@ -42,6 +42,7 @@
                 </a>
             </div>
         </div>
+        <div class="empty-state mt-4" th:if="${#lists.isEmpty(requests.content)}">No active support requests at the moment.</div>
         <nav class="mt-4" th:if="${requests.totalPages > 1}">
             <ul class="pagination">
                 <li class="page-item" th:classappend="${requests.first} ? 'disabled'"><a class="page-link" th:href="@{/requests(page=${requests.number-1}, q=${query}, category=${selectedCategory}, urgency=${selectedUrgency}, status=${selectedStatus})}">Previous</a></li>

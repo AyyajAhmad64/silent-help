@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<title>Request Reactivation | Silent Help</title>
+<main class="auth-page">
+    <div class="auth-card">
+        <span class="eyebrow dark">Account review</span>
+        <h1>Request Reactivation</h1>
+        <p class="text-muted">For security, deactivated accounts are reviewed by an admin before access is restored.</p>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}">Error</div>
+        <form th:action="@{/reactivation-request}" method="post" class="form-stack">
+            <label>Username or college email<input class="form-control" name="account" autocomplete="username" required></label>
+            <label>Reason for reactivation<textarea class="form-control" name="reason" rows="4" minlength="10" required></textarea></label>
+            <button class="btn btn-primary w-100" type="submit">Send Request</button>
+        </form>
+        <a class="small d-inline-block mt-3" th:href="@{/login}">Back to login</a>
+    </div>
+</main>
+</html>

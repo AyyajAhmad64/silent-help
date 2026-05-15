@@ -15,6 +15,7 @@
                 <td><form th:action="@{/admin/reports/{id}/status(id=${report.id})}" method="post" class="d-flex gap-2"><select class="form-select form-select-sm" name="status"><option th:each="status : ${statuses}" th:value="${status}" th:text="${status}" th:selected="${status == report.status}">OPEN</option></select><button class="btn btn-sm btn-dark">Save</button></form></td>
             </tr>
             </tbody></table></div>
+            <div class="empty-state mt-4" th:if="${#lists.isEmpty(reports.content)}">No reports pending review.</div>
         </section>
     </div></div>
 </main>

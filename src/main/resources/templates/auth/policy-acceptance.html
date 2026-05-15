@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}">
+<title>Accept Policies | Silent Help</title>
+<main class="auth-page policy-page">
+    <section class="auth-card policy-card">
+        <span class="eyebrow dark">Required review</span>
+        <h1>Platform Policies</h1>
+        <p class="text-muted">Review the Terms, Privacy Policy, and Community Guidelines before entering Silent Help.</p>
+        <div class="policy-version">Policy version <strong th:text="${policyVersion}">2026-05</strong></div>
+        <div class="policy-scroll" id="policyScroll" tabindex="0">
+            <section>
+                <h2>Terms & Conditions</h2>
+                <p>Use Silent Help only for genuine student support, academic collaboration, campus help, and respectful community discussion. Do not misuse anonymous posting to harass, impersonate, spam, threaten, or manipulate other users.</p>
+                <p>Requests involving money, emergency help, or sensitive personal situations may be reviewed by moderators and admins to protect users from fraud or abuse.</p>
+            </section>
+            <section>
+                <h2>Privacy Policy</h2>
+                <p>Your public activity may be anonymous, but account, email, enrollment, moderation, and security details are retained internally for trust, safety, audit, and abuse prevention. Admins may review reports, suspicious activity, and account history when needed.</p>
+                <p>Personal profile removal anonymizes visible identity while preserving moderation history, reports, and platform integrity records.</p>
+            </section>
+            <section>
+                <h2>Community Guidelines</h2>
+                <p>Be clear, kind, and practical. Share accurate help, avoid posting private data, report unsafe content, and use private chat responsibly. Fake requests, duplicate accounts, financial scams, and targeted harassment can lead to bans or review.</p>
+                <p>Internal verification and trust badges indicate admin-reviewed account confidence, not a guarantee of every interaction.</p>
+            </section>
+        </div>
+        <form th:action="@{/policies/accept}" method="post" class="policy-accept-bar">
+            <label class="switch-line"><input class="form-check-input" type="checkbox" name="agree" id="policyAgree" required disabled> I have read and agree to the Terms, Privacy Policy, and Community Guidelines.</label>
+            <button class="btn btn-primary" id="policyAcceptButton" type="submit" disabled>Accept & Enter Platform</button>
+        </form>
+    </section>
+</main>
+</html>

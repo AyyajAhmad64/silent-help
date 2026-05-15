@@ -3,16 +3,32 @@
 <title>Login | Silent Help</title>
 <main class="auth-page">
     <div class="auth-card">
-        <span class="eyebrow dark">Welcome back</span>
-        <h1>Sign in to Silent Help</h1>
-        <div th:if="${param.account != null && param.account[0] == 'suspended'}" class="alert alert-warning">
-            Your account is suspended by the admin. To request help, <a th:href="@{/contact}">contact the admin</a>.
+        <span class="eyebrow dark">Secure student access</span>
+        <h1>Welcome Back</h1>
+        <p class="text-muted">Your identity remains protected within anonymous interactions.</p>
+        <div th:if="${verificationLink}" class="alert alert-info">
+            Email verification is ready for this local setup:
+            <a th:href="@{${verificationLink}}">Verify email</a>
         </div>
-        <div th:if="${param.account != null && param.account[0] == 'deleted'}" class="alert alert-warning">
-            This account was deleted. If you want to use Silent Help again, wait 15 days and <a th:href="@{/contact}">contact the admin</a> for permission to register again.
+        <div th:if="${param.account != null && param.account[0] == 'banned'}" class="alert alert-warning">
+            Your account is banned by the admin. To request help, <a th:href="@{/contact}">contact the admin</a>.
         </div>
-        <div th:if="${param.account != null && param.account[0] == 'deleted_success'}" class="alert alert-info">
-            Your account deletion request was saved. Your profile details are not removed completely at once; admins keep a deletion record and can process permanent profile-detail removal after the 7-day review period.
+        <div th:if="${param.account != null && param.account[0] == 'unverified'}" class="alert alert-warning">
+            Please verify your college email before signing in.
+            <a class="btn btn-sm btn-outline-primary ms-2" th:href="@{/verify-email/request}">Get verification link</a>
+        </div>
+        <div th:if="${param.account != null && param.account[0] == 'deactivated'}" class="alert alert-info">
+            This account is currently deactivated.
+            <a class="btn btn-sm btn-outline-primary ms-2" th:href="@{/reactivation-request}">Request Reactivation</a>
+        </div>
+        <div th:if="${param.account != null && param.account[0] == 'pending_reactivation'}" class="alert alert-info">
+            Your reactivation request is pending admin review.
+        </div>
+        <div th:if="${param.account != null && param.account[0] == 'deactivated_success'}" class="alert alert-info">
+            Your account has been deactivated successfully. Admin approval is required before it can be reactivated.
+        </div>
+        <div th:if="${param.account != null && param.account[0] == 'removed_success'}" class="alert alert-info">
+            Your personal profile information has been removed and your activity is now anonymous.
         </div>
         <div th:if="${param.account != null && param.account[0] == 'error'}" class="alert alert-danger">Invalid username/email or password.</div>
         <div th:if="${param.logout}" class="alert alert-info">You have been logged out.</div>
@@ -23,6 +39,7 @@
         </form>
         <div class="d-flex justify-content-between gap-2 mt-3">
             <a class="small" th:href="@{/forgot-password}">Forgot password?</a>
+            <a class="small" th:href="@{/verify-email/request}">Verify email</a>
             <a class="small" th:href="@{/register}">Create student account</a>
         </div>
     </div>

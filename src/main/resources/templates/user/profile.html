@@ -9,6 +9,9 @@
             <form th:action="@{/profile}" method="post" class="row g-3 mt-2">
                 <div class="col-md-6"><label class="form-label">Username</label><input class="form-control" th:value="${user.username}" disabled></div>
                 <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" th:value="${user.email}" disabled></div>
+                <div class="col-md-6"><label class="form-label">PRN / Enrollment</label><input class="form-control" th:value="${user.enrollmentNumber} ?: 'Not provided'" disabled></div>
+                <div class="col-md-6"><label class="form-label">Student verification</label><div class="form-control readonly-field"><span class="trust-badge verified" th:if="${user.verifiedByAdmin}"><i class="bi bi-patch-check-fill"></i> Internally Verified</span><span class="trust-badge trusted" th:unless="${user.verifiedByAdmin}" th:text="${user.trustLevel}">Trusted User</span></div></div>
+                <div class="col-md-6"><label class="form-label">Account status</label><div class="form-control readonly-field"><span class="status-dot done" th:if="${user.accountStatus.name() == 'ACTIVE'}" th:text="${user.accountStatus}">ACTIVE</span><span class="status-dot urgency" th:unless="${user.accountStatus.name() == 'ACTIVE'}" th:text="${user.accountStatus}">STATUS</span></div></div>
                 <div class="col-md-6"><label class="form-label">Display name</label><input class="form-control" name="displayName" th:value="${user.displayName}" required></div>
                 <div class="col-md-6"><label class="form-label">Department</label><input class="form-control" name="department" th:value="${user.department}"></div>
                 <div class="col-md-6"><label class="form-label">Year of study</label><input class="form-control" name="yearOfStudy" th:value="${user.yearOfStudy}"></div>
@@ -16,16 +19,16 @@
             </form>
             <div th:if="${!isAdmin}" class="danger-zone mt-4">
                 <div>
-                    <h2>Delete account</h2>
-                    <p class="text-muted mb-0">Your account will be deactivated immediately and your profile will no longer be visible to other users.
-
-Some minimal account records may be retained temporarily for security and moderation purposes.
-
-You can register again in the future using the same college email.</p>
+                    <h2>Account privacy controls</h2>
+                    <p class="text-muted mb-0">Deactivate access temporarily or remove personal profile information while keeping requests, replies, reports, and moderation history intact.</p>
                 </div>
-                <form th:action="@{/account/delete}" method="post" class="form-stack mt-3">
-                    <label>Reason for deleting your account<textarea class="form-control" name="reason" rows="4" minlength="10" required></textarea></label>
-                    <button class="btn btn-outline-danger" type="submit">Delete my account</button>
+                <form th:action="@{/account/deactivate}" method="post" class="form-stack mt-3">
+                    <label>Reason for deactivating your account<textarea class="form-control" name="reason" rows="3" minlength="10" required></textarea></label>
+                    <button class="btn btn-outline-danger" type="submit">Deactivate Account</button>
+                </form>
+                <form th:action="@{/account/remove-personal-info}" method="post" class="form-stack mt-3">
+                    <label>Reason for removing personal information<textarea class="form-control" name="reason" rows="3" minlength="10" required></textarea></label>
+                    <button class="btn btn-danger" type="submit">Remove Personal Information</button>
                 </form>
             </div>
         </section>

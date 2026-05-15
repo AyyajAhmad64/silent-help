@@ -57,6 +57,38 @@ public class PublicController {
         return "public/feedback";
     }
 
+    @GetMapping("/community-guidelines")
+    public String communityGuidelines() {
+        return "public/community-guidelines";
+    }
+
+    @GetMapping("/terms")
+    public String terms() {
+        return "public/terms";
+    }
+
+    @GetMapping("/privacy")
+    public String privacy() {
+        return "public/privacy";
+    }
+
+    @GetMapping("/report-issue")
+    public String reportIssue() {
+        return "public/report-issue";
+    }
+
+    @PostMapping("/report-issue")
+    public String submitIssue(@RequestParam String name,
+                              @RequestParam String email,
+                              @RequestParam String issue,
+                              RedirectAttributes redirectAttributes) {
+        notificationService.notifyAdmins("Issue reported",
+                trimForNotification(name.trim() + " (" + email.trim() + "): " + issue.trim()),
+                "/notifications");
+        redirectAttributes.addFlashAttribute("success", "Issue submitted. The moderation team will review it.");
+        return "redirect:/report-issue";
+    }
+
     @PostMapping("/feedback")
     public String submitFeedback(@RequestParam String name,
                                  @RequestParam String feedback,

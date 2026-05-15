@@ -11,6 +11,7 @@ import com.silenthelp.silenthelp.repository.ResponseVoteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -31,19 +32,25 @@ public class ResponseService {
     }
 
     @Transactional
-    public void respond(Long requestId, ResponseForm form, User student) {
+    public Response respond(Long requestId, ResponseForm form, User student) {
+        String message = form.getMessage() == null ? "" : form.getMessage().trim();
+        if (message.isBlank()) {
+            throw new IllegalArgumentException("Response cannot be empty.");
+        }
         HelpRequest request = helpRequestRepository.findById(requestId).orElseThrow();
         Response response = new Response();
         response.setHelpRequest(request);
         response.setStudent(student);
-        response.setMessage(form.getMessage().trim());
+        response.setMessage(message);
         response.setAnonymous(form.isAnonymous());
-        responseRepository.save(response);
+        Response saved = responseRepository.save(response);
         request.incrementResponseCount();
+        request.setUpdatedAt(LocalDateTime.now());
         if (!request.getStudent().getId().equals(student.getId())) {
             notificationService.notify(request.getStudent(), "New response on your request",
                     "A student replied to: " + request.getTitle(), "/requests/" + request.getId());
         }
+        return saved;
     }
 
     @Transactional(readOnly = true)

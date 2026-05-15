@@ -101,20 +101,36 @@ public class DashboardController {
         return "redirect:/profile";
     }
 
-    @PostMapping("/account/delete")
-    public String deleteAccount(@RequestParam String reason,
+    @PostMapping("/account/deactivate")
+    public String deactivateAccount(@RequestParam String reason,
                                 Authentication authentication,
                                 HttpServletRequest request,
                                 HttpServletResponse response,
                                 RedirectAttributes redirectAttributes) {
         try {
-            User deletedUser = userService.deleteOwnAccount(authentication.getName(), reason);
+            userService.deactivateOwnAccount(authentication.getName(), reason);
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
             return "redirect:/profile";
         }
         new SecurityContextLogoutHandler().logout(request, response, authentication);
-        return "redirect:/login?account=deleted_success";
+        return "redirect:/login?account=deactivated_success";
+    }
+
+    @PostMapping("/account/remove-personal-info")
+    public String removePersonalInformation(@RequestParam String reason,
+                                            Authentication authentication,
+                                            HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            RedirectAttributes redirectAttributes) {
+        try {
+            userService.removePersonalInformation(authentication.getName(), reason);
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/profile";
+        }
+        new SecurityContextLogoutHandler().logout(request, response, authentication);
+        return "redirect:/login?account=removed_success";
     }
 
     private String trimForNotification(String value) {
