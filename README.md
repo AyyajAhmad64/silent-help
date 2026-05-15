@@ -1,5 +1,7 @@
 # Silent Help
 
+Anonymous student assistance platform built using Spring Boot, MySQL, HTML, CSS, JavaScript, and responsive UI principles.
+
 Silent Help is a Spring Boot MVC platform for anonymous student support. Students can create help requests, answer others, save posts, chat privately, receive notifications, and report unsafe content. Admins can moderate users, posts, categories, reports, and deleted-account requests.
 
 ## Tech Stack
@@ -29,7 +31,7 @@ mvn spring-boot:run
 
 6. Open `http://localhost:8086`.
 
-Seed data is enabled by default. Demo credentials may be configured in `DataSeeder` and `application.properties`; check the current local config before sharing them.
+Seed data is enabled by default. Configure production credentials with environment variables before sharing or deploying.
 
 ## Useful Commands
 
@@ -62,6 +64,18 @@ The packaged jar is written to `target/silenthelp-0.0.1-SNAPSHOT.jar`.
 - Review notifications for replies and chat activity.
 - Report abusive requests or responses.
 - Admins can manage users, categories, hidden posts, reports, and deleted accounts.
+
+## Deployment
+
+The app supports cloud-provided ports and environment variables:
+
+```text
+PORT=8086
+DB_URL=jdbc:mysql://localhost:3306/silent_help?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+DB_USERNAME=root
+DB_PASSWORD=<your-local-password>
+DEFAULT_ADMIN_PASSWORD=<strong-admin-password>
+```
 
 ## Additional Docs
 

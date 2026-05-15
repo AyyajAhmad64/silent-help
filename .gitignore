@@ -4,3 +4,19 @@ target/
 *.log
 .env
 uploads/
+
+# Compiled class files
+*.class
+
+# Java package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
